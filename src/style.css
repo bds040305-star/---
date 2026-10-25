@@ -326,12 +326,6 @@ p {
   padding-top: 8px;
   min-height: 550px;
 }
-.inside-product {
-  width: 100%;
-  margin: 86px auto 0;
-  mix-blend-mode: multiply;
-  object-fit: contain;
-}
 .steps {
   padding-top: 36px;
   padding-bottom: 86px;
@@ -1391,4 +1385,78 @@ p {
 }
 .assistant-strip {
   margin-top: 0;
+}
+
+/* Interactive structure component from the supplied second prototype. */
+.prototype-view {
+  position: relative;
+  width: 100%;
+  margin: 28px auto 0;
+  padding-bottom: 60px;
+}
+.prototype-exploded {
+  display: block;
+  width: 100%;
+  height: 410px;
+  object-fit: contain;
+}
+.prototype-point {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: #ffffffbd;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 18px #17312626;
+  color: #164e35;
+  font-size: 12px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.prototype-point[aria-pressed="true"] {
+  background: #164e35;
+  color: white;
+}
+.point-light {
+  left: 66%;
+  top: 32px;
+}
+.point-plant {
+  left: 15%;
+  top: 128px;
+}
+.point-water {
+  left: 65%;
+  top: 326px;
+}
+.prototype-caption {
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+  color: #708477;
+  min-height: 40px;
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  right: 0;
+  padding: 0 4px;
+}
+.step-card[aria-pressed="true"] {
+  outline: 1px solid #b5ccbb;
+  background: #fff;
+}
+@media (max-width: 359px) {
+  .prototype-exploded {
+    height: 365px;
+  }
+  .point-water {
+    top: 290px;
+  }
+  .point-plant {
+    top: 115px;
+  }
 }

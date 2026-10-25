@@ -465,6 +465,22 @@ export default function App() {
       0,
     );
   };
+  const [structureStep, setStructureStep] = useState(null);
+  const structureCopy = [
+    "LIGHT · 상부 조명으로 식물에 빛을 전해요.",
+    "MODE · 식물이 자라는 재배 공간을 살펴보세요.",
+    "TIMER · 생활 리듬에 맞춰 시간을 설정해요.",
+    "DRAIN · 하부 물통에서 물을 공급하고 관리해요.",
+    "HARVEST · 직접 키운 신선함을 식탁으로.",
+  ];
+  const selectStructure = (index, reveal = false) => {
+    setStructureStep(index);
+    if (index === 4) scroll("vegetables");
+    else if (reveal)
+      document
+        .getElementById("structure")
+        ?.scrollIntoView({ behavior: "smooth" });
+  };
   const steps = [
     ["LIGHT", "빛 조정하기", "LED 점등과 함께 간편하게 시작해요.", "light"],
     ["MODE", "모드 설정하기", "원하는 재배 모드를 손쉽게 선택해요.", "mode"],
@@ -627,26 +643,49 @@ export default function App() {
             <br />
             안쪽의 이야기.
           </h2>
-          <img
-            className="inside-product"
-            src={asset + "inside-product.png"}
-            alt="전면 도어와 측면이 열린 미니팜 내부 구조"
-          />
+          <div
+            className="prototype-view"
+            data-active={structureStep}
+            aria-label="2번 프로토타입 구조 탐색"
+          >
+            <img
+              className="prototype-exploded"
+              src={asset + "prototype-2-exploded.png"}
+              alt="상부 조명, 식물 재배부, 본체와 하부 물통이 분리된 구형 미니팜"
+            />
+            {[
+              ["상부 조명 살펴보기", 0, "light"],
+              ["식물 재배부 살펴보기", 1, "plant"],
+              ["물통 살펴보기", 3, "water"],
+            ].map(([label, index, part]) => (
+              <button
+                key={part}
+                className={"prototype-point point-" + part}
+                aria-label={label}
+                aria-pressed={structureStep === index}
+                onClick={() => selectStructure(index)}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <p className="prototype-caption" aria-live="polite">
+              {structureStep === null
+                ? "버튼을 눌러 안쪽의 이야기를 만나보세요."
+                : structureCopy[structureStep]}
+            </p>
+          </div>
         </section>
         <section
           className="steps section-pad"
           data-preview="steps"
           aria-label="미니팜 사용 단계"
         >
-          {steps.map(([name, title, text, target], i) => (
+          {steps.map(([name, title, text], i) => (
             <button
               className="step-card"
               key={name}
-              onClick={() =>
-                target === "vegetables"
-                  ? scroll("vegetables")
-                  : openControl(target)
-              }
+              aria-pressed={structureStep === i}
+              onClick={() => selectStructure(i, true)}
             >
               <span className="step-number">
                 {String(i + 1).padStart(2, "0")}
