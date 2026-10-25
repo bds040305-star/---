@@ -1,82 +1,59 @@
-# 모바일 섹션별 미리보기
+# 섹션별 모바일 미리보기
 
-최종본을 가로 390px 기준 13장으로 나눴습니다. 각 이미지의 높이는 최대 720px이며, 실제 앱에서도 이 순서대로 빈틈없이 이어집니다.
+각 섹션을 실제 HTML 화면에서 가로 390px, 2배 해상도로 따로 캡처했습니다. 아래 이미지는 390px 폭으로 표시됩니다. 제목·설명·버튼은 모두 실제 텍스트이며, 사진 부분만 이미지입니다.
 
 ## 01. 헤더
 
-390 × 110px
-
-![01. 헤더](../../public/design/sections/header.png)
+<img src="native/header.png" width="390" alt="01. 헤더" />
 
 ## 02. 메인 비주얼
 
-390 × 720px
-
-![02. 메인 비주얼](../../public/design/sections/hero.png)
+<img src="native/hero.png" width="390" alt="02. 메인 비주얼" />
 
 ## 03. AI 팜이 안내
 
-390 × 140px
-
-![03. AI 팜이 안내](../../public/design/sections/assistant.png)
+<img src="native/assistant.png" width="390" alt="03. AI 팜이 안내" />
 
 ## 04. 제품 선택
 
-390 × 630px
-
-![04. 제품 선택](../../public/design/sections/products.png)
+<img src="native/products.png" width="390" alt="04. 제품 선택" />
 
 ## 05. 제품 내부 구조
 
-390 × 600px
-
-![05. 제품 내부 구조](../../public/design/sections/structure.png)
+<img src="native/structure.png" width="390" alt="05. 제품 내부 구조" />
 
 ## 06. 사용 단계
 
-390 × 582px
-
-![06. 사용 단계](../../public/design/sections/steps.png)
+<img src="native/steps.png" width="390" alt="06. 사용 단계" />
 
 ## 07. 재배 시스템
 
-390 × 478px
-
-![07. 재배 시스템](../../public/design/sections/system.png)
+<img src="native/system.png" width="390" alt="07. 재배 시스템" />
 
 ## 08. 공기 공급 · 배지 · 도어
 
-390 × 335px
-
-![08. 공기 공급 · 배지 · 도어](../../public/design/sections/system-details.png)
+<img src="native/system-details.png" width="390" alt="08. 공기 공급 · 배지 · 도어" />
 
 ## 09. 조작방법
 
-390 × 275px
-
-![09. 조작방법](../../public/design/sections/operation.png)
+<img src="native/operation.png" width="390" alt="09. 조작방법" />
 
 ## 10. 채소 선택
 
-390 × 600px
-
-![10. 채소 선택](../../public/design/sections/vegetables.png)
+<img src="native/vegetables.png" width="390" alt="10. 채소 선택" />
 
 ## 11. 일상 소개
 
-390 × 225px
-
-![11. 일상 소개](../../public/design/sections/everyday.png)
+<img src="native/everyday.png" width="390" alt="11. 일상 소개" />
 
 ## 12. 공지사항 · 고객센터
 
-390 × 490px
-
-![12. 공지사항 · 고객센터](../../public/design/sections/customer.png)
+<img src="native/customer.png" width="390" alt="12. 공지사항 · 고객센터" />
 
 ## 13. 푸터
 
-390 × 300px
+<img src="native/footer.png" width="390" alt="13. 푸터" />
 
-![13. 푸터](../../public/design/sections/footer.png)
+## 스마트 온도 조절 — 하단 팝업
 
+<img src="native/temperature-sheet.png" width="390" alt="스마트 제어 하단 팝업" />
