@@ -14,6 +14,10 @@
 
 <img src="mobile/03-structure.png" width="418" alt="03. 제품 구조" />
 
+3D 분해 상태:
+
+<img src="mobile/03-structure-exploded.png" width="418" alt="스크롤과 슬라이더로 분해된 3D 모델" />
+
 ## 04. 사용 단계
 
 <img src="mobile/04-steps.png" width="418" alt="04. 사용 단계" />
