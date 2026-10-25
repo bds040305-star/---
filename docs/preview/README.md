@@ -42,3 +42,7 @@
 사진을 참고한 시연용 모델로 실제 CAD나 실측 내부 구조의 복원 모델은 아닙니다. WebGL이 지원되지 않으면 안내가 표시됩니다.
 
 [조립 상태](mobile/03-structure.png) · [3D 분해 상태](mobile/03-structure-exploded.png)
+
+## Vite 모듈 로딩 수정
+
+3D 코드와 동봉 라이브러리는 `src/lib/prototype3d/`에 두고 상대 경로로 동적 import합니다. `public` 파일을 소스에서 import하지 않으므로 개발 서버에서도 Vite 변환을 거치며, 프로덕션 빌드에서는 별도 청크로 생성됩니다.

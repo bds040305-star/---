@@ -10,7 +10,7 @@ export default function Prototype3D() {
     [ready, setReady] = useState(false);
   useEffect(() => {
     let cancelled = false;
-    import(/* @vite-ignore */ String("/prototype3d/viewer.js"))
+    import("./lib/prototype3d/viewer.js")
       .then((module) => {
         if (cancelled) return;
         try {
