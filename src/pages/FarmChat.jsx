@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowUp, Plus, Copy, Volume2, X } from 'lucide-react';
 import { asset } from '../components/FarmUI';
 import { ExperienceHeader, ExperienceSignature } from '../components/ExperienceLayout';
+import { aiEnabled, askFami } from '../lib/fami-api';
 
 export const initialConversation = [
   { role: 'assistant', text: '안녕하세요!' },
@@ -22,12 +23,16 @@ export default function FarmChat({ messages, setMessages, farm, device, setDevic
   const [feedback, setFeedback] = useState('');
   const [speaking, setSpeaking] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(null);
+  const [pending, setPending] = useState(false);
+  const [requestError, setRequestError] = useState('');
+  const [failedQuestion, setFailedQuestion] = useState('');
+  const activeRequest = useRef(null);
   const end = useRef(null);
   const composer = useRef(null);
   useEffect(() => {
     const transcript = end.current?.parentElement;
     if (transcript) transcript.scrollTop = transcript.scrollHeight;
-  }, [messages, viewportHeight]);
+  }, [messages, viewportHeight, pending]);
   useEffect(() => {
     const viewport = window.visualViewport;
     if (!viewport) return;
@@ -41,6 +46,11 @@ export default function FarmChat({ messages, setMessages, farm, device, setDevic
     return () => viewport.removeEventListener('resize', resize);
   }, []);
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
+  useEffect(() => () => {
+    const controller = activeRequest.current;
+    activeRequest.current = null;
+    controller?.abort();
+  }, []);
   const append = (...items) => setMessages((current) => [...current, ...items]);
   const bot = (text) => ({ role: 'assistant', text });
   const statusCard = (water = device.waterLevel, updated = false) => ({
@@ -51,20 +61,57 @@ export default function FarmChat({ messages, setMessages, farm, device, setDevic
     bot(device.waterLevel === 'enough' ? '물 잔량이 충분해요.' : '지금은 물 보충이 필요해 보여요.'),
     statusCard(),
   );
+  const requestAI = async (text, retry = false, override = {}) => {
+    if (activeRequest.current) return;
+    const controller = new AbortController();
+    activeRequest.current = controller;
+    setPending(true);
+    setRequestError('');
+    setFailedQuestion('');
+    setInput('');
+    setToolsOpen(false);
+    setFeedback('');
+    const history = retry ? messages : [...messages, { role: 'user', text }];
+    if (!retry) append({ role: 'user', text });
+    const context = { ...farm, ...device, ...override };
+    const timeout = setTimeout(() => controller.abort('timeout'), 35000);
+    try {
+      const result = await askFami(history, context, controller.signal);
+      if (activeRequest.current !== controller) return;
+      const items = [bot(result.reply)];
+      if (result.card === 'show_status') items.push(statusCard(context.waterLevel));
+      if (result.card === 'show_water_guide') items.push({ role: 'card', kind: 'water' });
+      append(...items);
+    } catch (error) {
+      if (activeRequest.current !== controller) return;
+      setRequestError(controller.signal.aborted ? '답변이 지연되고 있어요. 다시 시도해주세요.' : error.message || '연결을 확인하고 다시 시도해주세요.');
+      setFailedQuestion(text);
+    } finally {
+      clearTimeout(timeout);
+      if (activeRequest.current === controller) {
+        activeRequest.current = null;
+        setPending(false);
+      }
+    }
+  };
   const chooseTopic = (topic) => {
+    if (aiEnabled) { requestAI(topic); return; }
     append({ role: 'user', text: topic });
     if (topic === '미니팜 상태 확인') showStatus();
     else if (topic === '식물 키우기 고민') append(bot('어떤 채소를 키우고 계신가요? 빛과 물, 자라는 모습 중 궁금한 점을 알려주세요.'));
     else append(bot('오늘은 어떤 하루를 보내셨나요? 작은 정원을 돌보며 느낀 이야기도 들려주세요.'));
   };
   const refill = (text = '물 채웠어! 다시 확인해줘') => {
+    if (activeRequest.current) return;
     setDevice((d) => ({ ...d, waterLevel: 'enough' }));
+    if (aiEnabled) { requestAI(text, false, { waterLevel: 'enough' }); return; }
     append({ role: 'user', text }, bot(`${farm.name} 상태를 다시 확인했어요.`),
       bot('물 잔량이 충분해요. 잘해주셨어요!'), statusCard('enough', true), bot('또 다른 궁금한 점을 물어보세요!'));
   };
   const send = (value) => {
     const text = value.trim();
     if (!text) return;
+    if (aiEnabled) { requestAI(text); return; }
     setInput('');
     setToolsOpen(false);
     setFeedback('');
@@ -101,19 +148,19 @@ export default function FarmChat({ messages, setMessages, farm, device, setDevic
   };
   return <section className="experience-page farm-chat" style={viewportHeight ? { height: `${viewportHeight}px` } : undefined}>
     <ExperienceHeader title="AI 팜이에게 상담하기" />
-    <span className="chat-demo-label">팜이 상담 체험</span>
+    <span className="chat-demo-label">{aiEnabled ? '팜이 AI 상담' : '팜이 상담 체험 · AI 연결 전'}</span>
     <div className="chat-transcript" role="log" aria-label="팜이와의 대화" aria-live="polite" aria-relevant="additions text">
       {messages.map((message, index) => {
         if (message.role === 'card') {
           if (message.kind === 'topics') return <fieldset className="conversation-card topic-card" key={index}>
             <legend>함께 이야기할 주제</legend>
-            {['미니팜 상태 확인','식물 키우기 고민','오늘의 일상 이야기'].map((topic) => <button key={topic} onClick={() => chooseTopic(topic)}><span className="topic-dot" aria-hidden="true" />{topic}</button>)}
+            {['미니팜 상태 확인','식물 키우기 고민','오늘의 일상 이야기'].map((topic) => <button key={topic} disabled={pending} onClick={() => chooseTopic(topic)}><span className="topic-dot" aria-hidden="true" />{topic}</button>)}
           </fieldset>;
           if (message.kind === 'water') return <section className="conversation-card" aria-label="물을 채우는 순서" key={index}>
             <div className="conversation-card-heading"><h2>물을 채우는 순서</h2><span>관리 가이드</span></div>
             <p className="card-plant">{farm.plant} · 물 보충 안내</p>
             <ol className="water-instructions"><li>제품 안내에 따라 물통을 열어요</li><li>최대 수위선을 넘지 않게 채워요</li><li>물통을 제자리에 장착해요</li></ol>
-            <button className="experience-primary" onClick={() => refill()}>물 보충했어요</button>
+            <button className="experience-primary" disabled={pending} onClick={() => refill()}>물 보충했어요</button>
           </section>;
           return <section className="conversation-card" aria-label="미니팜 체험 상태" key={index}>
             <div className="conversation-card-heading"><h2>{farm.name}{!message.updated && '♫'}</h2><span>{message.updated ? '방금 업데이트' : farm.registered ? '기기등록 완료' : '체험 미니팜'}</span></div>
@@ -133,9 +180,14 @@ export default function FarmChat({ messages, setMessages, farm, device, setDevic
           </div>}
         </div>;
       })}
+      {pending && <p className="chat-thinking" role="status">팜이가 질문을 생각하고 있어요…</p>}
       <div ref={end} />
     </div>
     <div className="chat-composer-area">
+      {requestError && <div className="chat-request-error" role="alert">
+        <p>{requestError}</p>
+        <button type="button" disabled={pending} onClick={() => requestAI(failedQuestion, true)}>다시 시도</button>
+      </div>}
       {feedback && <p role="status" className="chat-feedback">{feedback}</p>}
       {!farm.registered && <p className="experience-account-link">미니팜이 등록되어있으신가요? <Link to="/register">등록하기</Link></p>}
       {toolsOpen && <div className="chat-quick-actions" aria-label="대화 바로가기">
@@ -144,6 +196,12 @@ export default function FarmChat({ messages, setMessages, farm, device, setDevic
         <button onClick={() => {
           window.speechSynthesis?.cancel();
           setSpeaking(false);
+          const controller = activeRequest.current;
+          activeRequest.current = null;
+          controller?.abort();
+          setPending(false);
+          setRequestError('');
+          setFailedQuestion('');
           setInput('');
           setFeedback('');
           setMessages([...initialConversation]);
@@ -154,9 +212,9 @@ export default function FarmChat({ messages, setMessages, farm, device, setDevic
       <form className="farm-composer" onSubmit={(e) => { e.preventDefault(); send(input); }}>
         <button type="button" className="chat-plus" aria-label="대화 메뉴" aria-expanded={toolsOpen} onClick={() => setToolsOpen(!toolsOpen)}>{toolsOpen ? <X size={20} /> : <Plus size={20} />}</button>
         <input ref={composer} type="text" aria-label="팜이에게 묻기" placeholder="팜이에게 묻기" value={input} onChange={(e) => setInput(e.target.value)} enterKeyHint="send" autoComplete="off" maxLength={1000} />
-        <button type="submit" className="chat-send" aria-label="메시지 보내기" disabled={!input.trim()}><ArrowUp size={23} /></button>
+        <button type="submit" className="chat-send" aria-label="메시지 보내기" disabled={!input.trim() || pending}><ArrowUp size={23} /></button>
       </form>
-      <ExperienceSignature />
+      <ExperienceSignature aiConnected={aiEnabled} />
     </div>
   </section>;
 }

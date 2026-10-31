@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { asset } from '../components/FarmUI';
 import { ExperienceSignature } from '../components/ExperienceLayout';
+import { aiEnabled } from '../lib/fami-api';
 
 export default function AIWelcome({ loggedIn }) {
   return <section className="experience-page ai-welcome">
@@ -14,6 +15,6 @@ export default function AIWelcome({ loggedIn }) {
       <Link className="experience-outline" to="/chat">팜이와 대화 시작하기</Link>
     </div>
     <p className="experience-account-link">{loggedIn ? '팜이와 함께할 준비가 됐어요.' : <>이미 함께하고 있나요? <Link to="/login">로그인하기</Link></>}</p>
-    <ExperienceSignature />
+    <ExperienceSignature aiConnected={aiEnabled} />
   </section>;
 }

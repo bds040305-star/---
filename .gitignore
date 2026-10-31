@@ -1,0 +1,6 @@
+.dev.vars
+.dev.vars.local
+.env.local
+.env.*.local
+.wrangler/
+worker-dist/

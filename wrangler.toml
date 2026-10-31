@@ -1,0 +1,15 @@
+name = "fami-chat-api"
+main = "server/fami-worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://bds040305-star.github.io"
+FAMI_AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+
+[ai]
+binding = "AI"
+
+[[ratelimits]]
+name = "FAMI_RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }

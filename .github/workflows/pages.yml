@@ -26,7 +26,10 @@ jobs:
         with:
           node-version: 24
       - run: npm ci --no-audit --no-fund
+      - run: node tests/fami-worker.test.mjs
       - run: npm run build
+        env:
+          VITE_FAMI_API_URL: ${{ vars.VITE_FAMI_API_URL }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

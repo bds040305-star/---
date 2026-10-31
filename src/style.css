@@ -1738,3 +1738,8 @@ p {
   .chat-composer-area .experience-signature { padding-top: 8px; padding-bottom: 10px; }
   .chat-composer-area .experience-signature small { display: none; }
 }
+
+.chat-thinking { color: #5a7860; font-size: 13px; padding: 12px 4px; }
+.chat-request-error { border-radius: 12px; background: #fff6ed; color: #79502c; padding: 10px 12px; margin: 8px 0; }
+.chat-request-error p { font-size: 12px; line-height: 1.5; }
+.chat-request-error button { padding: 8px 0 0; background: transparent; text-decoration: underline; font-size: 12px; }
