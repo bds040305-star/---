@@ -22,6 +22,9 @@ body {
   border-bottom: 1px solid #dce7df;
 }
 .page-navigation a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   flex: 0 0 auto;
   padding: 9px 13px;
   border-radius: 24px;
@@ -34,17 +37,10 @@ body {
   color: #fff;
 }
 .demo-notice {
-  padding: 16px 20px;
-  background: #fff4d6;
-  color: #493600;
-  border-bottom: 1px solid #d9bb6d;
-  font-size: 13px;
+  margin-bottom: 16px;
+  color: #617168;
+  font-size: 11px;
   line-height: 1.6;
-}
-.demo-notice strong {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 15px;
 }
 button,
 input {
@@ -105,13 +101,18 @@ p {
   line-height: 1.55;
 }
 #root {
-  max-width: 390px;
+  width: 100%;
+  max-width: 480px;
   margin: auto;
   background: #f4f7f4;
   min-height: 100dvh;
 }
 .site-shell {
   overflow: clip;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
 }
 .section-pad {
   padding-left: 24px;
@@ -173,7 +174,7 @@ p {
   color: #2c8e4e;
 }
 .hero h1 {
-  font-size: 42px;
+  font-size: clamp(37px, 10.77vw, 48px);
   line-height: 1.06;
   letter-spacing: -1.7px;
   font-weight: 600;
@@ -768,8 +769,8 @@ p {
   margin: 0 auto;
   border: 0;
   padding: 0;
-  width: min(100%, 390px);
-  max-width: 390px;
+  width: min(100%, 480px);
+  max-width: 480px;
   max-height: 94dvh;
   border-radius: 28px 28px 0 0;
   background: #fff;
@@ -1532,4 +1533,16 @@ p {
   color: #67816d;
   line-height: 1.6;
   margin-bottom: 16px;
+}
+
+/* Keep controls comfortable to tap and avoid focus zoom on mobile Safari. */
+.product-tabs button,
+.device-tabs button,
+.mode-options button,
+.model-views button {
+  min-height: 44px;
+}
+.chat-form input,
+.setting-card input[type="time"] {
+  font-size: 16px;
 }

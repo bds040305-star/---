@@ -414,10 +414,6 @@ export default function App() {
   };
   return (
     <div className="site-shell">
-      <aside className="demo-notice" aria-label="비공식 데모 안내">
-        <strong>비공식 디자인 데모</strong>
-        <p>교원·Wells가 운영하는 공식 사이트가 아닙니다. 구매·렌탈·로그인 서비스를 제공하지 않으며, 비밀번호나 결제정보를 요청하지 않습니다.</p>
-      </aside>
       <header className="site-header" data-preview="header">
         <button
           className="brand-link"
@@ -455,6 +451,9 @@ export default function App() {
         </Routes>
       </main>
       <footer className="footer section-pad" data-preview="footer">
+        <p className="demo-notice" role="note" aria-label="비공식 데모 안내">
+          비공식 디자인 데모 · 교원·Wells 공식 사이트가 아닙니다.
+        </p>
         <h2>
           MINI FARM <span>비공식 데모</span>
         </h2>
