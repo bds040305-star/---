@@ -13,6 +13,19 @@
 body {
   margin: 0;
 }
+.demo-notice {
+  padding: 16px 20px;
+  background: #fff4d6;
+  color: #493600;
+  border-bottom: 1px solid #d9bb6d;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.demo-notice strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 15px;
+}
 button,
 input {
   font: inherit;

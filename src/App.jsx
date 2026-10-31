@@ -2,7 +2,7 @@ import Prototype3D from "./Prototype3D";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const asset = "/design/assets/";
+const asset = `${import.meta.env.BASE_URL}design/assets/`;
 const vegetables = [
   { name: "상추", english: "LETTUCE", image: "lettuce.png" },
   { name: "루꼴라", english: "ARUGULA", image: "arugula.png" },
@@ -494,6 +494,10 @@ export default function App() {
   ];
   return (
     <div className="site-shell">
+      <aside className="demo-notice" aria-label="비공식 데모 안내">
+        <strong>비공식 디자인 데모</strong>
+        <p>교원·Wells가 운영하는 공식 사이트가 아닙니다. 구매·렌탈·로그인 서비스를 제공하지 않으며, 비밀번호나 결제정보를 요청하지 않습니다.</p>
+      </aside>
       <header className="site-header" data-preview="header">
         <button
           className="brand-link"
@@ -927,7 +931,7 @@ export default function App() {
       </main>
       <footer className="footer section-pad" data-preview="footer">
         <h2>
-          KYO WON <span>교원</span>
+          MINI FARM <span>비공식 데모</span>
         </h2>
         <nav aria-label="회사 정보">
           {[
@@ -942,7 +946,7 @@ export default function App() {
               onClick={() =>
                 info(
                   title,
-                  "원문과 서비스 주소는 디자인 자료에 포함되어 있지 않습니다. 고객센터에 문의해 주세요.",
+                  "이 항목은 화면 구성 체험용입니다. 이 데모는 실제 약관 동의, 판매인 조회 또는 본인인증을 제공하지 않습니다.",
                 )
               }
             >
@@ -967,15 +971,11 @@ export default function App() {
           ))}
         </div>
         <div className="company-details">
-          <p>대표자 장평순 | 서울특별시 중구 을지로51(을지로2가6번지)</p>
-          <p>
-            사업자등록번호 101-81-39767 | 통신판매업 신고 제
-            2016-서울중구-0988호
-          </p>
-          <p>개인정보보호책임자 Wells사업기획부문 허남석 부문장</p>
-          <p>고객센터 1588-4113 / FAX 02-3408-5250</p>
+          <p>제품 소개 화면과 인터랙션을 재현한 비공식 디자인 데모입니다.</p>
+          <p>교원·Wells와의 제휴 또는 공식 운영을 의미하지 않습니다.</p>
+          <p>기기 제어·계정·AI 상담은 실제 서비스에 연결되지 않습니다.</p>
           <p className="copyright">
-            COPYRIGHT(C) KYOWON PROPERTY. ALL RIGHTS RESERVED.
+            제품명과 상표의 권리는 각 권리자에게 있습니다.
           </p>
         </div>
       </footer>
