@@ -1,25 +1,71 @@
-import { Link } from 'react-router-dom'
-import PageShell from '../components/PageShell'
+import { useState } from "react";
+import Prototype3D from "../Prototype3D";
 
-export default function Structure(){
-  return <PageShell
-    eyebrow="02 / STRUCTURE"
-    title={<>제품이 분해될수록<br/>구조는 더 명확하게.</>}
-    desc="제품의 작동 방식을 한 번에 이해할 수 있도록 핵심 부품을 순서대로 분리해 보여줍니다."
-  >
-    <section className="content-section">
-      <div className="glass-card exploded-card">
-        {[
-          ['LIGHT PANEL','조명 패널'],
-          ['SEED PODS','씨앗 포드'],
-          ['WATER TANK','급수 탱크'],
-          ['BASE UNIT','베이스 유닛']
-        ].map((x,i)=><div className="explode-item" key={x[0]}>
-          <div className={`explode-shape shape-${i+1}`}></div>
-          <div><span>{x[0]}</span><b>{x[1]}</b></div>
-        </div>)}
-      </div>
-      <Link className="primary-btn" to="/how-it-works">사용 흐름 보기</Link>
-    </section>
-  </PageShell>
+export default function Structure({ onNavigate }) {
+  const [structureStep, setStructureStep] = useState(null);
+  const structureCopy = [
+    "LIGHT · 상부 조명으로 식물에 빛을 전해요.",
+    "MODE · 식물이 자라는 재배 공간을 살펴보세요.",
+    "TIMER · 생활 리듬에 맞춰 시간을 설정해요.",
+    "DRAIN · 하부 물통에서 물을 공급하고 관리해요.",
+    "HARVEST · 직접 키운 신선함을 식탁으로.",
+  ];
+  const selectStructure = (index) => {
+    setStructureStep(index);
+    if (index === 4) onNavigate("/seed");
+  };
+  const steps = [
+    ["LIGHT", "빛 조정하기", "LED 점등과 함께 간편하게 시작해요.", "light"],
+    ["MODE", "모드 설정하기", "원하는 재배 모드를 손쉽게 선택해요.", "mode"],
+    ["TIMER", "시간 맞추기", "생활 리듬에 맞춰 시간을 설정해요.", "timer"],
+    ["DRAIN", "물 채우기", "배수 기능으로 관리까지 간편하게.", "water"],
+    ["HARVEST", "바로 먹기!", "수확이 실제 식탁 경험으로 연결", "vegetables"],
+  ];
+  return (
+    <>
+        <section
+          className="structure section-pad"
+          id="structure"
+          data-preview="structure"
+          aria-labelledby="structure-title"
+        >
+          <h2 id="structure-title">
+            겉보다 더 궁금한,
+            <br />
+            안쪽의 이야기.
+          </h2>
+          <Prototype3D />
+        </section>
+        <section
+          className="steps section-pad"
+          data-preview="steps"
+          aria-label="미니팜 사용 단계"
+        >
+          {structureStep !== null && (
+            <p className="structure-step-caption" aria-live="polite">
+              {structureCopy[structureStep]}
+            </p>
+          )}
+          {steps.map(([name, title, text], i) => (
+            <button
+              className="step-card"
+              key={name}
+              aria-pressed={structureStep === i}
+              onClick={() => selectStructure(i)}
+            >
+              <span className="step-number">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <div className="step-heading">
+                  <strong>{name}</strong>
+                  <span>{title}</span>
+                </div>
+                <p>{text}</p>
+              </div>
+            </button>
+          ))}
+        </section>
+    </>
+  );
 }
