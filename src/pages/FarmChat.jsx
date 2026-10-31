@@ -120,7 +120,18 @@ export default function FarmChat({ messages, setMessages, farm, device, setDevic
       return;
     }
     append({ role: 'user', text });
-    if (/물|급수|보충/.test(text)) {
+    const greeting = text.normalize('NFKC').toLowerCase()
+      .replace(/^(?:팜아|팜이야|팜이)[,\s]*/, '')
+      .replace(/[\s,.!?~…。，！？👋😊🙂]/gu, '');
+    if (/^(?:안녕|안녕하세요|안뇽|하이|반가워|반가워요|hello|hi)(?:팜아|팜이야|팜이)?$/.test(greeting)) {
+      append(bot('안녕! 만나서 반가워요 🌱 저는 정원 친구 팜이에요. 편하게 이야기해 주세요!'));
+    } else if (/^(?:고마워|고마워요|고맙습니다|감사해|감사해요|감사합니다|땡큐|thanks|thankyou)$/.test(greeting)) {
+      append(bot('도움이 됐다니 기뻐요! 또 궁금한 게 생기면 언제든 불러주세요 🌱'));
+    } else if (/^(?:잘가|잘있어|잘있어요|다음에봐|다음에봐요|또만나|안녕히계세요|바이|bye)$/.test(greeting)) {
+      append(bot('다음에 또 만나요! 오늘도 싱그러운 하루 보내세요 🌿'));
+    } else if (/^(?:너는누구야|넌누구야|누구세요|이름이뭐야|네이름이뭐야)$/.test(greeting)) {
+      append(bot('저는 작은 정원 친구 팜이에요! 미니팜을 돌보는 이야기도, 오늘의 일상 이야기도 함께 나눠요 🌱'));
+    } else if (/물|급수|보충/.test(text)) {
       append(bot('물통의 수위를 먼저 확인해주세요.'), bot('아래 순서대로 천천히 따라 해보세요.'), { role: 'card', kind: 'water' });
     } else if (/상태|다시 확인/.test(text)) showStatus();
     else if (/일상|오늘|마음/.test(text)) append(bot('오늘의 이야기를 들려주세요. 작은 정원을 가꾸듯, 잠시 쉬어가는 시간이 되어도 좋아요.'));
