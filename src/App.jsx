@@ -7,6 +7,10 @@ import Structure from "./pages/Structure";
 import GrowingSystem from "./pages/GrowingSystem";
 import Seed from "./pages/Seed";
 import Support from "./pages/Support";
+import Login, { LoginComplete, AccountHelp } from "./pages/Login";
+import AIWelcome from "./pages/AIWelcome";
+import FarmChat, { initialConversation } from "./pages/FarmChat";
+import Register from "./pages/Register";
 
 const pages = [
   ["/", "홈"],
@@ -296,97 +300,44 @@ function DeviceControls({ tab, setTab, device, setDevice }) {
     </div>
   );
 }
-function AIChat({ showLogin }) {
-  const [started, setStarted] = useState(false),
-    [input, setInput] = useState(""),
-    [messages, setMessages] = useState([]);
-  return (
-    <div className="ai-content">
-      <h3>
-        {started
-          ? "당신의 작은 정원 친구, 팜이"
-          : "오늘은 어떤 이야기를\n나눌까요?"}
-      </h3>
-      <img
-        className="fami-large"
-        src={asset + "fami.png"}
-        alt="밀짚모자와 멜빵옷을 입은 정원 친구 팜이"
-      />
-      {!started ? (
-        <>
-          <h4>당신의 작은 정원 친구, 팜이</h4>
-          <p>식물 이야기부터 오늘의 마음까지</p>
-          <button className="outline-button" onClick={() => setStarted(true)}>
-            팜이와 대화 시작하기
-          </button>
-          <p className="ai-login">
-            이미 함께하고 있나요?{" "}
-            <button onClick={showLogin}>로그인하기</button>
-          </p>
-        </>
-      ) : (
-        <>
-          <p className="muted">AI 서버가 연결되지 않은 상담 체험입니다.</p>
-          <div className="messages" aria-live="polite">
-            {messages.map((m, i) => (
-              <p key={i} className={m.me ? "mine" : ""}>
-                {m.text}
-              </p>
-            ))}
-          </div>
-          <form
-            className="chat-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!input.trim()) return;
-              setMessages((m) => [
-                ...m,
-                { me: true, text: input.trim() },
-                {
-                  text: "안녕하세요! 현재는 대화 체험 화면이에요. 실제 상담은 AI 서비스 연결 후 이용할 수 있어요.",
-                },
-              ]);
-              setInput("");
-            }}
-          >
-            <input
-              aria-label="팜이에게 보낼 메시지"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="팜이에게 이야기해 주세요"
-            />
-            <button disabled={!input.trim()}>보내기</button>
-          </form>
-        </>
-      )}
-      <p className="green-signature">YOUR LITTLE GREEN WORLD</p>
-    </div>
-  );
-}
 export default function App() {
   const location = useLocation(),
     navigate = useNavigate();
   const [sheet, setSheet] = useState(null),
     [tab, setTab] = useState("power"),
     [notice, setNotice] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(() => {
+    try { return sessionStorage.getItem("wells_demo_session") === "active"; }
+    catch { return false; }
+  });
+  const [farm, setFarm] = useState({ name: "쑥쑥이", plant: "청경채", registered: false });
+  const [messages, setMessages] = useState([...initialConversation]);
+  const immersive = ["/ai", "/chat", "/login", "/login/complete", "/register", "/signup", "/reset-password"].includes(location.pathname);
   const [device, setDevice] = useState({
+    waterLevel: "low",
     power: false,
     temperature: 22,
     light: 70,
     water: false,
-    mode: "상추",
+    mode: "청경채",
     timer: "08:00",
     lock: false,
   });
   useEffect(() => {
+    try {
+      if (loggedIn) sessionStorage.setItem("wells_demo_session", "active");
+      else sessionStorage.removeItem("wells_demo_session");
+    } catch { /* The demo still works when browser storage is disabled. */ }
+  }, [loggedIn]);
+  useEffect(() => {
     if (location.pathname === "/control") {
       setTab(new URLSearchParams(location.search).get("tab") || "power");
       setSheet("control");
-    } else if (location.pathname === "/menu" || location.pathname === "/ai")
+    } else if (location.pathname === "/menu")
       setSheet(location.pathname.slice(1));
     else setSheet(null);
     window.scrollTo({ top: 0, behavior: "instant" });
-    const label = pages.find(([path]) => path === location.pathname)?.[1] || "홈";
+    const label = ({ "/ai": "팜이", "/chat": "팜이 상담", "/login": "로그인", "/login/complete": "로그인 완료", "/register": "미니팜 등록", "/signup": "회원가입 안내", "/reset-password": "비밀번호 안내" })[location.pathname] || pages.find(([path]) => path === location.pathname)?.[1] || "홈";
     document.title = `${label} · Mini Farm — 비공식 디자인 데모`;
   }, [location.pathname, location.search, location.hash]);
   const openControl = (name = "power") => {
@@ -396,17 +347,13 @@ export default function App() {
   const close = () => {
     setSheet(null);
     setNotice(null);
-    if (["/control", "/menu", "/ai"].includes(location.pathname)) navigate("/", { replace: true });
+    if (["/control", "/menu"].includes(location.pathname)) navigate("/", { replace: true });
   };
   const info = (title, text, phone = false) => {
     setNotice({ title, text, phone });
     setSheet("notice");
   };
-  const account = () =>
-    info(
-      "계정 서비스 안내",
-      "로그인·회원가입·마이페이지는 계정 서버 연결 후 사용할 수 있어요. 현재는 회원 정보를 저장하거나 전송하지 않습니다.",
-    );
+  const account = () => navigatePage("/login");
   const navigatePage = (path) => {
     setSheet(null);
     setNotice(null);
@@ -414,6 +361,7 @@ export default function App() {
   };
   return (
     <div className="site-shell">
+      {!immersive && <>
       <header className="site-header" data-preview="header">
         <button
           className="brand-link"
@@ -435,10 +383,11 @@ export default function App() {
           <NavLink key={to} to={to} end>{label}</NavLink>
         ))}
       </nav>
-      <main id="page-content" tabIndex={-1}>
+      </>}
+      <main id="page-content" className={immersive ? "experience-main" : undefined} tabIndex={-1}>
         <Routes>
           <Route path="/" element={<Home onNavigate={navigatePage} />} />
-          <Route path="/products" element={<Inside onChat={() => setSheet("ai")} />} />
+          <Route path="/products" element={<Inside onChat={() => navigatePage("/ai")} />} />
           <Route path="/inside" element={<Navigate to="/products" replace />} />
           <Route path="/structure" element={<Structure onNavigate={navigatePage} />} />
           <Route path="/how-it-works" element={<GrowingSystem openControl={openControl} info={info} />} />
@@ -446,11 +395,20 @@ export default function App() {
           <Route path="/support" element={<Support info={info} />} />
           <Route path="/control" element={<Home onNavigate={navigatePage} />} />
           <Route path="/menu" element={<Home onNavigate={navigatePage} />} />
-          <Route path="/ai" element={<Home onNavigate={navigatePage} />} />
+          <Route path="/ai" element={<AIWelcome loggedIn={loggedIn} />} />
+          <Route path="/chat" element={<FarmChat messages={messages} setMessages={setMessages} farm={{ ...farm, plant: device.mode }} device={device} setDevice={setDevice} openControl={openControl} />} />
+          <Route path="/login" element={<Login onLogin={() => setLoggedIn(true)} />} />
+          <Route path="/login/complete" element={loggedIn ? <LoginComplete /> : <Navigate to="/login" replace />} />
+          <Route path="/register" element={<Register farm={{ ...farm, plant: device.mode }} onRegister={(next) => {
+            setFarm({ ...next, registered: true });
+            setDevice((d) => ({ ...d, mode: next.plant }));
+          }} />} />
+          <Route path="/signup" element={<AccountHelp />} />
+          <Route path="/reset-password" element={<AccountHelp reset />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      <footer className="footer section-pad" data-preview="footer">
+      {!immersive && <footer className="footer section-pad" data-preview="footer">
         <p className="demo-notice" role="note" aria-label="비공식 데모 안내">
           비공식 디자인 데모 · 교원·Wells 공식 사이트가 아닙니다.
         </p>
@@ -502,7 +460,7 @@ export default function App() {
             제품명과 상표의 권리는 각 권리자에게 있습니다.
           </p>
         </div>
-      </footer>
+      </footer>}
       {sheet && (
         <BottomSheet
           title={
@@ -546,15 +504,15 @@ export default function App() {
                   {label} <Icon name="arrow" />
                 </button>
               ))}
-              <button className="menu-ai" onClick={() => setSheet("ai")}>
+              <button className="menu-ai" onClick={() => navigatePage("/ai")}>
                 <strong>AI 팜이에게 상담하기</strong>
                 <span>무엇이든 편하게 물어보세요</span>
                 <img src={asset + "fami.png"} alt="팜이" />
               </button>
               <div className="account-links">
-                <button onClick={account}>로그인</button>
-                <button onClick={account}>회원가입</button>
-                <button onClick={account}>
+                <button onClick={loggedIn ? () => { setLoggedIn(false); setSheet(null); } : account}>{loggedIn ? "로그아웃" : "로그인"}</button>
+                <button onClick={() => navigatePage("/signup")}>회원가입</button>
+                <button onClick={() => navigatePage(loggedIn ? "/register" : "/login")}>
                   <Icon name="user" size={20} />
                   마이페이지
                 </button>
@@ -562,7 +520,6 @@ export default function App() {
               <p className="green-signature">YOUR LITTLE GREEN WORLD</p>
             </div>
           )}
-          {sheet === "ai" && <AIChat showLogin={account} />}
           {sheet === "notice" && notice && (
             <div className="notice-content">
               <p>{notice.text}</p>
