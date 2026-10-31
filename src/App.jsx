@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, NavLink, Routes, Route, Navigate } from "react-router-dom";
+import { useLocation, useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import { asset, vegetables, Icon, Brand } from "./components/FarmUI";
-import Home from "./pages/Home";
-import Inside from "./pages/Inside";
-import Structure from "./pages/Structure";
-import GrowingSystem from "./pages/GrowingSystem";
-import Seed from "./pages/Seed";
-import Support from "./pages/Support";
+import Landing from "./pages/Landing";
 import Login, { LoginComplete, AccountHelp } from "./pages/Login";
 import AIWelcome from "./pages/AIWelcome";
 import FarmChat, { initialConversation } from "./pages/FarmChat";
@@ -20,6 +15,11 @@ const pages = [
   ["/seed", "채소 고르기"],
   ["/support", "고객센터"],
 ];
+
+const sectionPaths = {
+  "/products": "products", "/inside": "products", "/structure": "structure",
+  "/how-it-works": "system", "/seed": "vegetables", "/support": "customer",
+};
 
 function BottomSheet({ title, children, onClose, kind = "" }) {
   const ref = useRef(null);
@@ -336,7 +336,10 @@ export default function App() {
     } else if (location.pathname === "/menu")
       setSheet(location.pathname.slice(1));
     else setSheet(null);
-    window.scrollTo({ top: 0, behavior: "instant" });
+    const section = new URLSearchParams(location.search).get("section");
+    if (location.pathname === "/" && Object.values(sectionPaths).includes(section)) {
+      requestAnimationFrame(() => document.getElementById(section)?.scrollIntoView({ behavior: "instant" }));
+    } else window.scrollTo({ top: 0, behavior: "instant" });
     const label = ({ "/ai": "팜이", "/chat": "팜이 상담", "/login": "로그인", "/login/complete": "로그인 완료", "/register": "미니팜 등록", "/signup": "회원가입 안내", "/reset-password": "비밀번호 안내" })[location.pathname] || pages.find(([path]) => path === location.pathname)?.[1] || "홈";
     document.title = `${label} · Mini Farm — 비공식 디자인 데모`;
   }, [location.pathname, location.search, location.hash]);
@@ -357,8 +360,14 @@ export default function App() {
   const navigatePage = (path) => {
     setSheet(null);
     setNotice(null);
-    navigate(path);
+    const section = sectionPaths[path];
+    navigate(section ? `/?section=${section}` : path);
+    if (section && location.pathname === "/") {
+      requestAnimationFrame(() => document.getElementById(section)?.scrollIntoView({ behavior: "instant" }));
+    }
   };
+  const landing = <Landing onNavigate={navigatePage} openControl={openControl} info={info}
+    onSelect={(mode) => setDevice((d) => ({ ...d, mode }))} />;
   return (
     <div className="site-shell">
       {!immersive && <>
@@ -378,23 +387,15 @@ export default function App() {
           <Icon name="menu" />
         </button>
       </header>
-      <nav className="page-navigation" aria-label="페이지 메뉴">
-        {pages.map(([to, label]) => (
-          <NavLink key={to} to={to} end>{label}</NavLink>
-        ))}
-      </nav>
       </>}
       <main id="page-content" className={immersive ? "experience-main" : undefined} tabIndex={-1}>
         <Routes>
-          <Route path="/" element={<Home onNavigate={navigatePage} />} />
-          <Route path="/products" element={<Inside onChat={() => navigatePage("/ai")} />} />
-          <Route path="/inside" element={<Navigate to="/products" replace />} />
-          <Route path="/structure" element={<Structure onNavigate={navigatePage} />} />
-          <Route path="/how-it-works" element={<GrowingSystem openControl={openControl} info={info} />} />
-          <Route path="/seed" element={<Seed onSelect={(mode) => setDevice((d) => ({ ...d, mode }))} openControl={openControl} />} />
-          <Route path="/support" element={<Support info={info} />} />
-          <Route path="/control" element={<Home onNavigate={navigatePage} />} />
-          <Route path="/menu" element={<Home onNavigate={navigatePage} />} />
+          <Route path="/" element={landing} />
+          {Object.entries(sectionPaths).map(([path, section]) => (
+            <Route key={path} path={path} element={<Navigate to={`/?section=${section}`} replace />} />
+          ))}
+          <Route path="/control" element={landing} />
+          <Route path="/menu" element={landing} />
           <Route path="/ai" element={<AIWelcome loggedIn={loggedIn} />} />
           <Route path="/chat" element={<FarmChat messages={messages} setMessages={setMessages} farm={{ ...farm, plant: device.mode }} device={device} setDevice={setDevice} openControl={openControl} />} />
           <Route path="/login" element={<Login onLogin={() => setLoggedIn(true)} />} />
